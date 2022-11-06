@@ -616,6 +616,14 @@ export default {
                 }
             })
         },
+        setShippingStatus(e) {
+            if (e === '0') {
+                this.dataForm.freePackageStatus = '0'
+                this.dataForm.freeShippingPrice = ''
+                this.dataForm.freeShippingRate = ''
+                this.dataForm.freePackagePrice = ''
+            }
+        },
         setShowProvinceDialog(kind) { // 성, 시 추가 다이얼로그 로출
             this.deliveryKind = kind
             this.isShowProvinceDialog = true

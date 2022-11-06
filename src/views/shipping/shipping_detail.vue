@@ -11,7 +11,7 @@
                     <el-col :span="24">
                         <el-row>
                             <el-form-item label-width="15.6%" label="免邮设置: " class="postInfo-container-item">
-                                <el-radio-group v-model="dataForm.freeShippingStatus">
+                                <el-radio-group v-model="dataForm.freeShippingStatus" @change="setShippingStatus">
                                     <el-radio :label="'1'">是</el-radio>
                                     <el-radio :label="'0'">否</el-radio>
                                 </el-radio-group>
@@ -24,7 +24,7 @@
                                 <span style="color: #303133; font-size: 14px;">&nbsp;&nbsp;%才能参加该活动</span>
                             </el-form-item>
                         </el-row>
-                        <el-row>
+                        <el-row v-if="dataForm.freeShippingStatus === '1'">
                             <el-form-item label-width="15.6%" label="免包装费设置: " class="postInfo-container-item">
                                 <el-radio-group v-model="dataForm.freePackageStatus">
                                     <el-radio :label="'1'">是</el-radio>
