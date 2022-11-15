@@ -360,7 +360,7 @@ export default {
             let isFree = false
 
             row.deliveries.filter(res => {
-                if (res.postageFreeStatus === "1") {
+                if (res.postageFreeStatus === '1' || res.postageFreeStatus === '2') {
                     isFree = true
                 }
             })
