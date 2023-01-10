@@ -257,7 +257,7 @@ export function setConfirmWarningDeliveryFromFuture(data) {
 // confirm order ready for delivery from warning
 export function setConfirmWarningOrderReady(data) {
     return request({
-        url: `orders/readyDeliveryFromWarning`,
+        url: `orders/notReadyDeliveryFromWarning`,
         method: 'put',
         data
     })
@@ -285,5 +285,21 @@ export function getOrderTimeout(data) {
         url: 'orders/timeout',
         method: 'get',
         params: data
+    })
+}
+
+// download order delivery controll
+export function exportOrderDeliveryControll(deliveryStatus) {
+    return request({
+        url: `orders/deliveryControl/${deliveryStatus}/export`,
+        method: 'get'
+    })
+}
+
+// order force init
+export function setOrderForceInit(orderNo) {
+    return request({
+        url: `orders/forceInit/${orderNo}`,
+        method: 'put'
     })
 }

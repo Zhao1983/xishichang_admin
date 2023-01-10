@@ -34,7 +34,8 @@ import {
     setConfirmWarningDeliveryFromFuture,
     setExportOrderGoods,
     getDeliveryStatusNum,
-    setConfirmWarningOrderReady
+    setConfirmWarningOrderReady,
+    exportOrderDeliveryControll
 } from "@/api/order" // 주문데이터 API 추가
 import { getAllDeliveryCompany } from "@/api/shipping"
 
@@ -54,7 +55,14 @@ export default {
         this.getOrderStatusData()
         this.getOrderData("", 0)
     },
-    mounted() {},
+    mounted() {
+        const menuData = localStorage.getItem('menus') ? JSON.parse(localStorage.getItem('menus')) : []
+        this.permissionRefund = menuData.find((rs) => {
+            if (rs.name === '订单管理') {
+                return rs.subs.find((r) => r.name === '订单退款按钮')
+            }
+        })
+    },
     directives: {
         elDragDialog
     },
@@ -149,30 +157,35 @@ export default {
             listKind: "",
             activeTabOption: "0",
             tabOption: [{
-                    label: "未准备发货",
-                    key: "0",
-                    count: 0
-                },
-                {
-                    label: "已准备发货",
-                    key: "1",
-                    count: 0
-                },
-                {
-                    label: "明日发货",
-                    key: "3",
-                    count: 0
-                },
-                {
-                    label: "订单异常",
-                    key: "4",
-                    count: 0
-                }
+                label: "未准备发货",
+                key: "0",
+                label_en: "notReady",
+                count: 0
+            },
+            {
+                label: "已准备发货",
+                key: "1",
+                label_en: "ready",
+                count: 0
+            },
+            {
+                label: "明日发货",
+                key: "3",
+                label_en: "future",
+                count: 0
+            },
+            {
+                label: "订单异常",
+                key: "4",
+                label_en: "warning",
+                count: 0
+            }
             ],
             notReadyNum: 0,
             readyNum: 0,
             futureNum: 0,
-            warningNum: 0
+            warningNum: 0,
+            permissionRefund: false // 환불권한상태값
         }
     },
     methods: {
@@ -239,12 +252,12 @@ export default {
 
             this.beginDt =
                 this.beginDt === "" || this.beginDt === null ?
-                "" :
-                this.$moment(this.beginDt).format("YYYY-MM-DD")
+                    "" :
+                    this.$moment(this.beginDt).format("YYYY-MM-DD")
             this.endDt =
                 this.endDt === "" || this.endDt === null ?
-                "" :
-                this.$moment(this.endDt).format("YYYY-MM-DD")
+                    "" :
+                    this.$moment(this.endDt).format("YYYY-MM-DD")
         },
         getOrderData(kind, tabOption) {
             // 주문정보 얻기
@@ -460,12 +473,12 @@ export default {
                 this.subOrderData.filter((res, idx) => {
                     if (
                         this.subDeliveryGoods[res.orderNo].typeName[res.typeName].shop[
-                            res.shopName
+                        res.shopName
                         ]
                     ) {
                         this.subDeliveryGoods[res.orderNo].typeName[res.typeName].shop[
-                                res.shopName
-                            ].count =
+                            res.shopName
+                        ].count =
                             this.subDeliveryGoods[res.orderNo].typeName[res.typeName].shop[
                                 res.shopName
                             ].count + 1
@@ -845,12 +858,12 @@ export default {
             this.subOrderData.filter((res, idx) => {
                 if (
                     this.subDeliveryGoods[res.orderNo].typeName[res.typeName].shop[
-                        res.shopName
+                    res.shopName
                     ]
                 ) {
                     this.subDeliveryGoods[res.orderNo].typeName[res.typeName].shop[
-                            res.shopName
-                        ].count =
+                        res.shopName
+                    ].count =
                         this.subDeliveryGoods[res.orderNo].typeName[res.typeName].shop[
                             res.shopName
                         ].count + 1
@@ -1285,10 +1298,10 @@ export default {
                     setTimeout(() => {
                         this.isClicked = false
                         printJS({
-                                printable: this.$refs.batch_print.id,
-                                type: "html",
-                                targetStyles: ["*"]
-                            },
+                            printable: this.$refs.batch_print.id,
+                            type: "html",
+                            targetStyles: ["*"]
+                        },
                             1000
                         )
                     })
@@ -1529,6 +1542,17 @@ export default {
                     this.readyNum = response.data.readyNum
                     this.futureNum = response.data.futureNum
                     this.warningNum = response.data.warningNum
+                }
+            })
+        },
+        setExportOrderDeliveryControll() {
+            const label = this.tabOption.find((rs) => rs.key === this.activeTabOption)
+            
+            exportOrderDeliveryControll(label.label_en).then(response => {
+                if (response.code === 0) {
+                    if (response.data.uri !== "") {
+                        window.location.href = response.data.uri
+                    }
                 }
             })
         }

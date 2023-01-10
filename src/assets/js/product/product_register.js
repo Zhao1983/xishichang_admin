@@ -317,7 +317,8 @@ export default {
                 this.dataForm.salesPrice = element.target.value
                 this.isVisiblePriceToolTip = parseFloat(this.dataForm.costPrice) > parseFloat(this.dataForm.salesPrice)
 
-                if (parseFloat(this.dataForm.costPrice) > parseFloat(this.dataForm.salesPrice) || this.dataForm.costPrice === 0 || this.dataForm.costPrice === '' || this.dataForm.salesPrice === 0 || this.dataForm.salesPrice === '') {
+                if (parseFloat(this.dataForm.costPrice) > parseFloat(this.dataForm.salesPrice) || this.dataForm.costPrice === 0 ||
+                    this.dataForm.costPrice === '' || this.dataForm.salesPrice === 0 || this.dataForm.salesPrice === '') {
                     if (this.isFreeShippingStatus === '1') {
                         this.isEnableShippingRate = true
                         this.dataForm.isProfitRateFreeStatus = false
@@ -376,7 +377,8 @@ export default {
                 this.dataForm.costPrice = element.target.value
                 this.isVisiblePriceToolTip = parseFloat(this.dataForm.costPrice) > parseFloat(this.dataForm.salesPrice)
 
-                if (parseFloat(this.dataForm.costPrice) > parseFloat(this.dataForm.salesPrice) || this.dataForm.costPrice === 0 || this.dataForm.costPrice === '' || this.dataForm.salesPrice === 0 || this.dataForm.salesPrice === '') {
+                if (parseFloat(this.dataForm.costPrice) > parseFloat(this.dataForm.salesPrice) || this.dataForm.costPrice === 0 ||
+                    this.dataForm.costPrice === '' || this.dataForm.salesPrice === 0 || this.dataForm.salesPrice === '') {
                     if (this.isFreeShippingStatus === '1') {
                         this.isEnableShippingRate = true
                         this.dataForm.isProfitRateFreeStatus = false

@@ -24,7 +24,7 @@ import {
     setSendDelivery,
     setSendShipping,
     setOrderDeliveryAddress,
-    getOrderPrintInfo
+    setOrderForceInit
 } from '@/api/order' // 주문데이터 API 추가
 import { getAllDeliveryCompany } from '@/api/shipping'
 import locationData from '@/assets/location.json'
@@ -44,6 +44,12 @@ export default {
     },
     mounted() {
         window.addEventListener('keyup', this.setInputValue)
+        const menuData = localStorage.getItem('menus') ? JSON.parse(localStorage.getItem('menus')) : []
+        this.permissionForce = menuData.find((rs) => {
+            if (rs.name === '订单管理') {
+                return rs.subs.find((r) => r.name === '订单初始化按钮')
+            }
+        })
     },
     directives: {
         elDragDialog
@@ -130,6 +136,7 @@ export default {
             countryName: '', // 수화지역명
             deliveryAddressInfo: '', // 수화상세주소
             deliveryHouseNo: '', // 주소상세
+            permissionForce: false // 버튼권한상태값
         }
     },
     methods: {
@@ -452,7 +459,6 @@ export default {
                     this.provinceData.filter(prov => {
                         if (prov.name === this.deliveryProvinceName) {
                             this.cityData = prov.districts
-                            console.log(this.cityData)
 
                             prov.districts.filter(city => {
                                 if (city.name === this.deliveryCityName) {
@@ -1074,6 +1080,24 @@ export default {
                     showToast(this, '操作成功', 'success')
                     this.getOrderData()
                 }
+            })
+        },
+        async setForceInit() {
+            if (this.isClicked) {
+                return
+            }
+
+            const isSuccess = await this.openMessageBox('是否确认？')
+
+            if (!isSuccess) {
+                return
+            }
+
+            this.isClicked = true
+            setOrderForceInit(this.orderNo).then(response => {
+                this.isClicked = false
+                showToast(this, '操作成功', 'success')
+                this.getOrderData()
             })
         }
     }

@@ -78,7 +78,8 @@
                 <el-button v-show="activeTabOption === '1'" type="secondary" @click="setConfirmFutureDelivery" size="mini">确认明日发货</el-button>
                 <el-button v-show="activeTabOption === '1'" type="danger" @click="setConfirmWarningDelivery" size="mini">确认订单异常</el-button>
                 <el-button v-show="activeTabOption === '3'" type="danger" @click="setConfirmWarningDeliveryFromFuture" size="mini">确认订单异常</el-button>
-                <el-button v-show="activeTabOption === '4'" type="success" @click="setConfirmWarningOrderReady" size="mini">转入已准备发货</el-button>
+                <el-button v-show="activeTabOption === '4'" type="success" @click="setConfirmWarningOrderReady" size="mini">转入未准备发货</el-button>
+                <el-button type="default" @click="setExportOrderDeliveryControll" size="mini">订单导出</el-button>
             </el-row>
             <el-card class="box-card">
                 <el-row>
@@ -319,7 +320,7 @@
                                             <el-button v-else-if="(row.orderStatus === 2 || row.orderStatus === 6 || row.orderStatus === 7) && row.deliveryType === 3 && row.deliveries[0].deliveryNo === ''" size="mini" type="success" @click="setSendDelivery(row.id, row.dutyAdmin)">发货
                                             </el-button>
                                             <el-button v-else-if="row.orderStatus === 70 && row.deliveryType === 3" size="mini" type="primary" @click="setShowSendDialog(row.deliveries, row.orderNo, row.id, row.dutyAdmin, 'all', 'manual')">重新配送</el-button>
-                                            <el-button v-if="row.orderStatus === 2 || row.orderStatus === 7 || row.orderStatus === 8 || row.orderStatus === 70" size="mini" type="info" @click="setShowRefundDialog(row.id, row.dutyAdmin, 0, 'all')">退款</el-button>
+                                            <el-button v-if="(row.orderStatus === 2 || row.orderStatus === 7 || row.orderStatus === 8 || row.orderStatus === 70)" size="mini" type="info" @click="setShowRefundDialog(row.id, row.dutyAdmin, 0, 'all')">退款</el-button>
                                             <el-button v-if="row.orderStatus === 1" size="mini" type="danger" @click="setShowCancelDialog(row.id, row.dutyAdmin)">取消</el-button>
                                             <el-button v-if="row.orderStatus === 8" size="mini" type="primary" @click="setOrderFinish(row.id, row.dutyAdmin)">确认收货</el-button>
                                             <el-button size="mini" type="warning" @click="setPrint(row)">打印清单</el-button>

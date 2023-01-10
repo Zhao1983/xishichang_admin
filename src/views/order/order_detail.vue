@@ -101,6 +101,7 @@
                 <el-col :span="4">
                     <el-button type="success" size="mini" @click="setShowOrderHistoryDialog">订单记录</el-button>
                     <el-button type="primary" size="mini" @click="setPrint">打印清单</el-button>
+                    <el-button v-if="permissionForce" type="default" size="mini" @click="setForceInit">订单初始化</el-button>
                 </el-col>
                 <el-col :span="1"></el-col>
                 <el-col :span="14">

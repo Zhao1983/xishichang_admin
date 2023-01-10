@@ -1,7 +1,4 @@
 import request from '@/utils/myrequest'
-import {
-    getCookieData
-} from '@/utils/auth' // 쿠키설정
 
 // get free shipping info
 export function getFreeShipping() {
@@ -110,6 +107,14 @@ export function setUpdateStatus(id, query) {
         url: `goods/status/${id}`,
         method: 'put',
         data: query
+    })
+}
+
+// set goods force off
+export function setGoodsForceOff(id) {
+    return request({
+        url: `goods/forceOff/${id}`,
+        method: 'put'
     })
 }
 

@@ -47,6 +47,13 @@ export default {
     },
     mounted() {
         window.addEventListener("keyup", this.setInputValue)
+
+        const menuData = localStorage.getItem('menus') ? JSON.parse(localStorage.getItem('menus')) : []
+        this.permissionRefund = menuData.find((rs) => {
+            if (rs.name === '订单管理') {
+                return rs.subs.find((r) => r.name === '订单退款按钮')
+            }
+        })
     },
     directives: {
         elDragDialog
@@ -132,7 +139,8 @@ export default {
                 disabledDate(time) {
                     return time.getTime() > Date.now()
                 }
-            }
+            },
+            permissionRefund: false // 환불권한상태값
         }
     },
     methods: {

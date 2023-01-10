@@ -9,7 +9,8 @@ import {
 import {
     getProduct,
     setUpdateStatus,
-    setUploadExcelFile
+    setUploadExcelFile,
+    setGoodsForceOff
 } from '@/api/product' // 상품카테고리 API 추가
 
 import {
@@ -46,7 +47,12 @@ export default {
         this.getProductData()
     },
     mounted() {
-
+        const menuData = localStorage.getItem('menus') ? JSON.parse(localStorage.getItem('menus')) : []
+        this.permissionForce = menuData.find((rs) => {
+            if (rs.name === '商品管理') {
+                return rs.subs.find((r) => r.name === '商品强制下架按钮')
+            }
+        })
     },
     directives: {
         elDragDialog
@@ -80,7 +86,8 @@ export default {
             offCause: '', // 내림상태리유 내용
             prodId: undefined, // 상품아이디
             prodStatus: '', // 상품상태
-            profitRateFreeStatus: getCookieData('delivery_event_status')
+            profitRateFreeStatus: getCookieData('delivery_event_status'),
+            permissionForce: false // 버튼권한상태값
         }
     },
     methods: {
@@ -287,12 +294,21 @@ export default {
                 offCause: this.offCause
             }
 
-            setUpdateStatus(this.prodId, query).then(response => {
-                if (response === '') {
-                    showToast(this, '操作成功', 'success')
-                    this.getProductData()
-                }
-            })
+            if (this.permissionForce && this.prodStatus === '0') {
+                setGoodsForceOff(this.prodId).then(response => {
+                    if (response === '') {
+                        showToast(this, '操作成功', 'success')
+                        this.getProductData()
+                    }
+                })
+            } else {
+                setUpdateStatus(this.prodId, query).then(response => {
+                    if (response === '') {
+                        showToast(this, '操作成功', 'success')
+                        this.getProductData()
+                    }
+                })
+            }
         },
         setClickExcelFile() {
             this.$refs.excel.click()

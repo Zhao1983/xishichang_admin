@@ -112,6 +112,20 @@
                     </el-col>
                 </el-row>
             </el-card>
+            <el-card v-if="isFreeShippingStatus === '1'" class="box-card" style="margin-bottom: 10px;">
+                <el-row>
+                    <el-col :span="7">
+                        <el-col :span="5">
+                            <el-form-item label-width="100%" label="是否参加满免活动: " class="postInfo-container-item">
+                                <el-checkbox v-model="dataForm.isProfitRateFreeStatus" :disabled="isEnableShippingRate"></el-checkbox>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="17">
+                            <div style="color: #999999; font-size: 13px; margin-left: 30px; margin-top: 12px;">毛利率高于 <span style="font-weight: bold; color: #222222; font-size: 15px;">{{freeShippingRate}}%</span> 才能参加该活动</div>
+                        </el-col>
+                    </el-col>
+                </el-row>
+            </el-card>
             <!-- 옵션상품정보 -->
             <el-card class="box-card" style="margin-bottom: 10px;">
                 <div slot="header" class="clearfix">

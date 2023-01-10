@@ -31,7 +31,8 @@ import {
     setUploadImage,
     existProduct,
     setRegisterProduct,
-    getGoodsIcon
+    getGoodsIcon,
+    getFreeShipping
 } from '@/api/product' // 상품 API 추가
 
 import {
@@ -62,6 +63,7 @@ export default {
 
         this.shopId = parseInt(this.$route.params && this.$route.params.id)
 
+        this.getFreeShipping()
         this.getGoodsIconData()
         this.getDeliveryType()
         this.getUnit()
@@ -112,7 +114,10 @@ export default {
                 goodsUnit: '', // 계량단위
                 goodsDesc: '', // 상품소개
                 goodsIconName: '',
-                goodsIconUri: imageBack
+                goodsIconUri: imageBack,
+                postageFreeStatus: false, // 무료배송상태값(false:무료배송아님, true:무료배송)
+                profitRateFreeStatus: '0', // 무료배송이벤트설정여부
+                isProfitRateFreeStatus: false
             },
             rules: {
                 goodsName: [{
@@ -224,6 +229,9 @@ export default {
             tempTypeId: undefined,
             tempSubTypeId: undefined,
             goodsIcons: [],
+            freeShippingRate: 0,
+            isFreeShippingStatus: '0',
+            isEnableShippingRate: true,
             styles: { // 썸네일 사이즈 스타일
                 width: '70px',
                 height: '70px',
@@ -311,6 +319,24 @@ export default {
 
                 this.dataForm.salesPrice = element.target.value
                 this.isVisiblePriceToolTip = parseFloat(this.dataForm.costPrice) > parseFloat(this.dataForm.salesPrice)
+
+                if (parseFloat(this.dataForm.costPrice) > parseFloat(this.dataForm.salesPrice) || this.dataForm.costPrice === 0 || this.dataForm.costPrice === '' || this.dataForm.salesPrice === 0 || this.dataForm.salesPrice === '') {
+                    if (this.isFreeShippingStatus === '1') {
+                        this.isEnableShippingRate = true
+                        this.dataForm.isProfitRateFreeStatus = false
+                        this.dataForm.profitRateFreeStatus = '0'
+                    }
+                } else {
+                    const rate = (parseFloat(this.dataForm.salesPrice) - parseFloat(this.dataForm.costPrice)) / parseFloat(this.dataForm.salesPrice) * 100
+
+                    if (this.isFreeShippingStatus === '1' && parseFloat(this.freeShippingRate) <= rate) {
+                        this.isEnableShippingRate = false
+                    } else {
+                        this.isEnableShippingRate = true
+                        this.dataForm.isProfitRateFreeStatus = false
+                        this.dataForm.profitRateFreeStatus = '0'
+                    }
+                }
             }
 
             if (element.target.id === 'discountPercent') { // 할인률
@@ -350,6 +376,24 @@ export default {
 
                 this.dataForm.costPrice = element.target.value
                 this.isVisiblePriceToolTip = parseFloat(this.dataForm.costPrice) > parseFloat(this.dataForm.salesPrice)
+
+                if (parseFloat(this.dataForm.costPrice) > parseFloat(this.dataForm.salesPrice) || this.dataForm.costPrice === 0 || this.dataForm.costPrice === '' || this.dataForm.salesPrice === 0 || this.dataForm.salesPrice === '') {
+                    if (this.isFreeShippingStatus === '1') {
+                        this.isEnableShippingRate = true
+                        this.dataForm.isProfitRateFreeStatus = false
+                        this.dataForm.profitRateFreeStatus = '0'
+                    }
+                } else {
+                    const rate = (parseFloat(this.dataForm.salesPrice) - parseFloat(this.dataForm.costPrice)) / parseFloat(this.dataForm.salesPrice) * 100
+
+                    if (this.isFreeShippingStatus === '1' && parseFloat(this.freeShippingRate) <= rate) {
+                        this.isEnableShippingRate = false
+                    } else {
+                        this.isEnableShippingRate = true
+                        this.dataForm.isProfitRateFreeStatus = false
+                        this.dataForm.profitRateFreeStatus = '0'
+                    }
+                }
             }
 
             if (element.target.id === 'visualSalesNum') { // 가상판매량
@@ -446,6 +490,15 @@ export default {
                 element.target.value = element.target.value.replace(/[^0-9]/g, '')
                 this.dataForm.packageDto.num = element.target.value
             }
+        },
+        getFreeShipping() {
+            getFreeShipping().then(response => {
+                console.log({ response })
+                if (response.code === 0) {
+                    this.freeShippingRate = response.data.status === '1' ? response.data.profitRate ? response.data.profitRate : 0 : 0
+                    this.isFreeShippingStatus = response.data.status
+                }
+            })
         },
         getGoodsIconData() {
             getGoodsIcon().then(response => {
@@ -1321,7 +1374,9 @@ export default {
                     status: this.dataForm.isPackage === true ? '1' : '0'
                 },
                 randKey: randKey,
-                goodsIconName: this.dataForm.goodsIconName
+                goodsIconName: this.dataForm.goodsIconName,
+                postageFreeStatus: this.dataForm.postageFreeStatus ? '1' : '0',
+                profitRateFreeStatus: this.dataForm.isProfitRateFreeStatus ? '1' : '0'
             }
 
             this.isClicked = true
