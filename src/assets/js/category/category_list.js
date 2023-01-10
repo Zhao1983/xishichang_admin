@@ -1,7 +1,6 @@
 import Thumbnail from '@/components/ImageItem/single_image' // 카테고리아이콘용 컴포넨트 추가
 import elDragDialog from '@/directive/el-drag-dialog'
 import Sortable from 'sortablejs'
-
 import imageBack from '@/assets/images/review_image_back.png' // 썸네일 백그라운드 이미지 추가
 
 import {
@@ -15,7 +14,12 @@ import {
     setRegisterCategory,
     setUpdateCategory,
     getGoodsDataByType,
-    updateGoodsRankingNumberByType
+    updateGoodsRankingNumberByType,
+    getOverSeasTypeInfo,
+    setAddOverSeasTypeInfo,
+    setUpdateOverSeasTypeInfo,
+    setUpdateOverSeasTypeRankingNumber,
+    setUpdateGoodsRankingNumberByOverSeasType
 } from '@/api/category' // 상품카테고리 API 추가
 
 import {
@@ -51,6 +55,12 @@ export default {
     },
     mounted() {
         window.addEventListener('keyup', this.setFilterValue)
+    },
+    watch: {
+        activeOption(val) {
+            this.activeOption = val
+            this.getCategoryData()
+        }
     },
     computed: {
         categoryData() {
@@ -88,7 +98,7 @@ export default {
             iconFile: undefined, // 카테고리 아이콘 파일
             isCategoryDialog: false, // 카테고리다이얼로그 로출 상태
             isShowImageCancel: false, // 카테고리 이미지 로출 상태
-            kind: 'add', // 카테고리 다이얼로그 조류(추가/편집)
+            kind: 'add', // 카테고리 다이얼로그 종류(추가/편집)
             rules: {
                 typeName: [{
                     required: true,
@@ -110,7 +120,17 @@ export default {
             oldGoodsData: [],
             sortable: null,
             typeTitle: '',
-            subTypeTitle: ''
+            subTypeTitle: '',
+            tabOption: [{
+                    label: '国内版分类',
+                    key: 'domestic'
+                },
+                {
+                    label: '海外版分类',
+                    key: 'overseas'
+                }
+            ],
+            activeOption: 'domestic'
         }
     },
     methods: {
@@ -122,19 +142,29 @@ export default {
         getCategoryData() { // 카테고리 데이터 얻는 API 호출
             this.checkStrictly = true
 
-            getCategories().then(response => {
-                if (response.code === 0) {
-                    this.listCategory = this.generateCategory(response.data.list, 'all')
-                    this.tempCategory = response.data.list
+            if (this.activeOption === 'domestic') {
+                getCategories().then(response => {
+                    if (response.code === 0) {
+                        this.listCategory = this.generateCategory(response.data.list, 'all')
+                        this.tempCategory = response.data.list
 
-                    this.$nextTick(() => {
-                        const category = this.generateCategory(response.data.list, 'show')
-                        this.$refs.category.setCheckedNodes(this.generateArr(category))
+                        this.$nextTick(() => {
+                            const category = this.generateCategory(response.data.list, 'show')
+                            this.$refs.category[0].setCheckedNodes(this.generateArr(category))
 
-                        this.checkStrictly = false
-                    })
-                }
-            })
+                            this.checkStrictly = false
+                        })
+                    }
+                })
+            }
+
+            if (this.activeOption === 'overseas') {
+                getOverSeasTypeInfo({ typeStatus: '1' }).then(response => {
+                    if (response.code === 0) {
+
+                    }
+                })
+            }
         },
         setUploadIcons(data) { // 카테고리 아이콘 업로드
             return new Promise((resolve, reject) => {
@@ -227,7 +257,7 @@ export default {
 
             this.$nextTick(() => {
                 const category = this.generateCategory(this.tempCategory, 'show')
-                this.$refs.category.setCheckedNodes(this.generateArr(category))
+                this.$refs.category[0].setCheckedNodes(this.generateArr(category))
 
                 this.checkStrictly = false
             })
@@ -329,7 +359,7 @@ export default {
             this.iconFile = undefined
         },
         setSortData() { // 대카테고리, 소카테고리 정렬
-            const sortData = this.$refs.category.getCheckedKeys()
+            const sortData = this.$refs.category[0].getCheckedKeys()
             let index = 0
             let data = []
             let existCat = ''

@@ -2,46 +2,55 @@
 <div id="category_list">
     <div class="app-container">
         <el-row>
-            <el-button class="filter-item" type="primary" plain icon="el-icon-check" size="mini" @click="setSortData" style="float: right; margin-bottom: 10px; margin-left: 10px;">保存</el-button>
-            <el-button class="filter-item" type="primary" icon="el-icon-plus" size="mini" @click="showCategoryDialog('add', 0, 0)" style="float: right; margin-bottom: 10px;">新增分类</el-button>
+            <el-col :span="24">
+                <el-tabs v-model="activeOption" type="border-card">
+                    <el-tab-pane v-for="item in tabOption" :key="item.key" :label="item.label" :name="item.key">
+                        <el-row>
+                            <el-button class="filter-item" type="primary" plain icon="el-icon-check" size="mini" @click="setSortData" style="float: right; margin-bottom: 10px; margin-left: 10px;">保存</el-button>
+                            <el-button class="filter-item" type="primary" icon="el-icon-plus" size="mini" @click="showCategoryDialog('add', 0, 0)" style="float: right; margin-bottom: 10px;">新增分类</el-button>
+                        </el-row>
+                        <div v-if="activeOption === 'domestic'">
+                            <el-row>
+                                <el-col :span="7" style="height: 10px;"></el-col>
+                                <el-col :span="10">
+                                    <el-card class="box-card">
+                                        <el-tree ref="category" :check-strictly="checkStrictly" :data="categoryData" :props="defaultProps" show-checkbox node-key="id" class="permission-tree" default-expand-all draggable @node-drag-end="handleDragEnd" :allow-drop="allowDrop" :allow-drag="allowDrag">
+                                            <span class="custom-tree-node" slot-scope="{data}">
+                                                <span>{{ data.name.split('##')[0] }}</span>
+                                                <span>
+                                                    <div v-if="data.name.split('##')[1] === '0'" style="color: blue;">{{ data.name.split('##')[1] }}</div>
+                                                    <router-link v-else-if="data.id.split('-')[1] !== ''" :to="'/category/category_detail/' + data.id.split('-')[0] + '/' + data.id.split('-')[1]">
+                                                        <div style="color: blue; text-decoration: underline;">{{ data.name.split('##')[1] }}</div>
+                                                    </router-link>
+                                                    <router-link v-else :to="'/category/category_detail/' + data.id.split('-')[0] + '/0'">
+                                                        <div style="color: blue; text-decoration: underline;">{{ data.name.split('##')[1] }}</div>
+                                                    </router-link>
+                                                </span>
+                                                <span v-if="data.id.split('-')[1] !== ''">
+                                                    <el-button type="text" size="mini" @click="showCategoryDialog('edit', data.id.split('-')[0], data.id.split('-')[1])" style="color: #67c23a;">编辑</el-button>
+                                                </span>
+                                                <span v-else>
+                                                    <el-button type="text" size="mini" @click="showCategoryDialog('add', data.id.split('-')[0], 0)">增加下级分类</el-button>
+                                                    <el-button type="text" size="mini" @click="showCategoryDialog('edit', data.id.split('-')[0], 0)" style="color: #67c23a;">编辑</el-button>
+                                                </span>
+                                            </span>
+                                        </el-tree>
+                                    </el-card>
+                                </el-col>
+                                <el-col :span="7" style="height: 10px;"></el-col>
+                            </el-row>
+                        </div>
+                        <div v-if="activeOption === 'overseas'">
+
+                        </div>
+                    </el-tab-pane>
+                </el-tabs>
+            </el-col>
         </el-row>
-        <el-form ref="addForm" class="form-container">
-            <el-row>
-                <el-col :span="7" style="height: 10px;"></el-col>
-                <el-col :span="10">
-                    <el-card class="box-card">
-                        <el-form-item label="">
-                            <el-tree ref="category" :check-strictly="checkStrictly" :data="categoryData" :props="defaultProps" show-checkbox node-key="id" class="permission-tree" default-expand-all draggable @node-drag-end="handleDragEnd" :allow-drop="allowDrop" :allow-drag="allowDrag">
-                                <span class="custom-tree-node" slot-scope="{data}">
-                                    <span>{{ data.name.split('##')[0] }}</span>
-                                    <span>
-                                        <div v-if="data.name.split('##')[1] === '0'" style="color: blue;">{{ data.name.split('##')[1] }}</div>
-                                        <router-link v-else-if="data.id.split('-')[1] !== ''" :to="'/category/category_detail/' + data.id.split('-')[0] + '/' + data.id.split('-')[1]">
-                                            <div style="color: blue; text-decoration: underline;">{{ data.name.split('##')[1] }}</div>
-                                        </router-link>
-                                        <router-link v-else :to="'/category/category_detail/' + data.id.split('-')[0] + '/0'">
-                                            <div style="color: blue; text-decoration: underline;">{{ data.name.split('##')[1] }}</div>
-                                        </router-link>
-                                    </span>
-                                    <span v-if="data.id.split('-')[1] !== ''">
-                                        <el-button type="text" size="mini" @click="showCategoryDialog('edit', data.id.split('-')[0], data.id.split('-')[1])" style="color: #67c23a;">编辑</el-button>
-                                    </span>
-                                    <span v-else>
-                                        <el-button type="text" size="mini" @click="showCategoryDialog('add', data.id.split('-')[0], 0)">增加下级分类</el-button>
-                                        <el-button type="text" size="mini" @click="showCategoryDialog('edit', data.id.split('-')[0], 0)" style="color: #67c23a;">编辑</el-button>
-                                    </span>
-                                </span>
-                            </el-tree>
-                        </el-form-item>
-                    </el-card>
-                </el-col>
-                <el-col :span="7" style="height: 10px;"></el-col>
-            </el-row>
-        </el-form>
     </div>
 
     <!-- 카테고리 등록/수정 다이얼로그 -->
-    <el-dialog v-el-drag-dialog title="保存" :visible.sync="isCategoryDialog" :close-on-click-modal="false">
+    <el-dialog v-el-drag-dialog title="保存" :visible.sync="isCategoryDialog" :close-on-click-modal="false" width="25%">
         <el-form ref="addForm" :model="addForm" :rules="rules" class="form-container">
             <el-row>
                 <el-col :span="24">
@@ -53,7 +62,7 @@
                             <el-option v-for="item in tempCategory" :key="item.id" :label="item.typeName" :value="item.id" :disabled="true" />
                         </el-select>
                     </el-form-item>
-                    <el-form-item label-width="20%" label="" class="postInfo-container-item">
+                    <el-form-item label-width="20%" label="" class="postInfo-container-item" v-if="activeOption === 'domestic'">
                         <div style="position: relative; width: 100px;">
                             <input ref="iconUri" type="file" name="iconUri" value="" style="display: none;" @change="setChangeCatIcon">
                             <div @click="setPriviewCatIcon">
