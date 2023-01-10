@@ -151,6 +151,38 @@
                     </el-col>
                 </el-row>
             </el-card>
+            <!-- 해외배송여부선택 -->
+            <el-card class="box-card" style="margin-bottom: 10px;">
+                <el-row>
+                    <el-col :span="3">
+                        <el-col :span="10">
+                            <el-form-item label-width="100%" label="是否支持海外: " class="postInfo-container-item">
+                                <el-checkbox v-model="dataForm.overseasStatus"></el-checkbox>
+                            </el-form-item>
+                        </el-col>
+                    </el-col>
+                    <el-col :span="21" v-show="dataForm.overseasStatus">
+                        <el-col :span="6">
+                            <el-form-item label-width="29.5%" label="海外原价: " class="postInfo-container-item">
+                                <el-input class="color_prop" id="overseasOriginalPrice" size="small" ref="overseasOriginalPrice" type="text" v-model="dataForm.overseasOriginalPrice" placeholder="海外原价" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="6">
+                            <el-form-item prop="overseasSalesPrice" label-width="29.5%" label="海外销售价: " class="postInfo-container-item">
+                                <el-input class="color_prop" id="overseasSalesPrice" size="small" ref="overseasSalesPrice" type="text" v-model="dataForm.overseasSalesPrice" placeholder="海外销售价" />
+                            </el-form-item>
+                        </el-col>
+                        <!-- 해외용상품분류 -->
+                        <el-col :span="12">
+                            <el-form-item prop="overseasTypeName" label-width="25%" label="海外所属分类: " class="postInfo-container-item">
+                                <el-input id="overseasTypeName" ref="overseasTypeName" v-model="dataForm.overseasTypeName" size="small" placeholder="请输入海外所属分类" style="width: 46%;" :readonly="true" />
+                                <el-button type="primary" icon="el-icon-plus" size="small" @click="setShowOverseasTypeDialog" style="margin-left: 5px;">新增</el-button>
+                                <span style="color: #999999; font-size: 12px; margin-left: 10px;">(可动态添加分类)</span>
+                            </el-form-item>
+                        </el-col>
+                    </el-col>
+                </el-row>
+            </el-card>
             <el-card v-if="isFreeShippingStatus === '1'" class="box-card" style="margin-bottom: 10px;">
                 <el-row>
                     <el-col :span="7">
@@ -218,6 +250,16 @@
                             <el-table-column label="供货价" align="center" width="125%;">
                                 <template slot-scope="{row, $index}">
                                     <el-input class="color_prop" :id="'costPrice-' + $index" size="small" v-model="row.costPrice" type="text" :ref="'costPrice-' + $index" placeholder="" />
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="海外原价" align="center" width="125%;" v-if="dataForm.overseasStatus">
+                                <template slot-scope="{row, $index}">
+                                    <el-input class="color_prop" :id="'overseasOriginalPrice-' + $index" size="small" v-model="row.overseasOriginalPrice" type="text" :ref="'overseasOriginalPrice-' + $index" placeholder="" />
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="海外销售价" align="center" width="125%;" v-if="dataForm.overseasStatus">
+                                <template slot-scope="{row, $index}">
+                                    <el-input class="color_prop" size="small" :id="'overseasSalesPrice-' + $index" v-model="row.overseasSalesPrice" type="text" :ref="'overseasSalesPrice-' + $index" placeholder="" />
                                 </template>
                             </el-table-column>
                             <el-table-column label="重量(kg)" align="center" width="125%;">
@@ -530,6 +572,28 @@
         </div>
         <div slot="footer" class="dialog-footer">
             <el-button @click="setCanceTypeDialog">取消</el-button>
+            <el-button type="primary" @click="setAddType">保存</el-button>
+        </div>
+    </el-dialog>
+    <!-- 해외용상품분류추가 다이얼로그 -->
+    <el-dialog v-el-drag-dialog title="保存" width="25%" :visible.sync="isShowOverseasTypeDialog" @close="setCanceOverseasTypeDialog" :close-on-click-modal="false">
+        <div class="filter-container" style="margin-bottom: 10px;">
+            <el-form ref="prodForm" class="form-container">
+                <el-row>
+                    <el-col :span="22">
+                        <el-form-item label-width="20%" label="海外商品类别: ">
+                            <!-- 상품분류 -->
+                            <el-select v-model="dataForm.typeId" size="small" placeholder="商品大类别" clearable style="width: 100%;" @change="setChangeCategory">
+                                <el-option key="" label="" value="" />
+                                <el-option v-for="item in listType" :key="item.id" :label="item.typeName" :value="item.id" />
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+            </el-form>
+        </div>
+        <div slot="footer" class="dialog-footer">
+            <el-button @click="setCanceOverseasTypeDialog">取消</el-button>
             <el-button type="primary" @click="setAddType">保存</el-button>
         </div>
     </el-dialog>

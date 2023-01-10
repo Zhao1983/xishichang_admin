@@ -108,7 +108,12 @@ export default {
                 deliveryCode: '', // 배송회사코드
                 postageFreeStatus: false, // 무료배송상태값(false:무료배송아님, true:무료배송)
                 profitRateFreeStatus: '0', // 무료배송이벤트설정여부
-                isProfitRateFreeStatus: false
+                isProfitRateFreeStatus: false,
+                overseasStatus: false, // 해외배송여부
+                overseasOriginalPrice: '', // 해외용원가
+                overseasSalesPrice: '', // 해외용판매가
+                overseasTypeName: '', // 해외용상품분류명
+                overseasTypeId: undefined // 해외용상품분류아이디
             },
             rules: {
                 goodsName: [{
@@ -160,11 +165,22 @@ export default {
                     required: true,
                     message: '计量单位是必填项',
                     trigger: 'change'
+                }],
+                overseasSalesPrice: [{
+                    required: true,
+                    message: '海外销售价是必填项',
+                    trigger: 'change'
+                }],
+                overseasTypeName: [{
+                    required: true,
+                    message: '所属分类是必填项',
+                    trigger: 'change'
                 }]
             },
             isShowShopDialog: false, // 점포추가다이얼로그 로출상태
             isShowTagDialog: false, // 키워드추가다이얼로그 로출상태
             isShowTypeDialog: false, // 분류추가다이얼로그 로출상태
+            isShowOverseasTypeDialog: false, // 해외용상품분류추가다이얼로그 로출상태
             searchShopName: '', // 검색용점포명
             searchTagName: '', // 검색용키워드명
             dataShop: [], // 점포 배렬
@@ -185,6 +201,8 @@ export default {
                 discountPercent: '', // 옵션상품할인률
                 isPercent: false, // 옵션상품할인률 사용여부
                 salesPrice: '', // 옵션상품판매가
+                overseasOriginalPrice: '', // 해외용원가
+                overseasSalesPrice: '', // 해외용판매가
                 costPrice: '', // 옵션상품공급가
                 sizeWeight: '', // 옵션상품무게
                 imgId: undefined, // 옵션상품이미지인덱스
@@ -219,6 +237,7 @@ export default {
             listMainImage: [], // 상품이미지배렬
             tempTypeId: undefined,
             tempSubTypeId: undefined,
+            tempOverseasTypeId: undefined,
             goodsIcons: [],
             goodsVideoFile: undefined, // 상품동영상파일
             freeShippingRate: 0,
@@ -245,6 +264,14 @@ export default {
                 this.dataForm.costPrice = this.dataForm.costPrice !== '' ? parseFloat(this.dataForm.costPrice).toFixed(2) : ''
             }
 
+            if (element.target.id === 'overseasOriginalPrice') {
+                this.dataForm.overseasOriginalPrice = this.dataForm.overseasOriginalPrice !== '' ? parseFloat(this.dataForm.overseasOriginalPrice).toFixed(2) : ''
+            }
+
+            if (element.target.id === 'overseasSalesPrice') {
+                this.dataForm.overseasSalesPrice = this.dataForm.overseasSalesPrice !== '' ? parseFloat(this.dataForm.overseasSalesPrice).toFixed(2) : ''
+            }
+
             this.dataOption.filter((res, idx) => {
                 if (element.target.id === 'originalPrice-' + idx) {
                     this.dataOption[idx].originalPrice = this.dataOption[idx].originalPrice !== '' ? parseFloat(this.dataOption[idx].originalPrice).toFixed(2) : ''
@@ -256,6 +283,14 @@ export default {
 
                 if (element.target.id === 'costPrice-' + idx) {
                     this.dataOption[idx].costPrice = this.dataOption[idx].costPrice !== '' ? parseFloat(this.dataOption[idx].costPrice).toFixed(2) : ''
+                }
+
+                if (element.target.id === 'overseasOriginalPrice-' + idx) {
+                    this.dataOption[idx].overseasOriginalPrice = this.dataOption[idx].overseasOriginalPrice !== '' ? parseFloat(this.dataOption[idx].overseasOriginalPrice).toFixed(2) : ''
+                }
+
+                if (element.target.id === 'overseasSalesPrice-' + idx) {
+                    this.dataOption[idx].overseasSalesPrice = this.dataOption[idx].overseasSalesPrice !== '' ? parseFloat(this.dataOption[idx].overseasSalesPrice).toFixed(2) : ''
                 }
             })
         },
@@ -297,6 +332,25 @@ export default {
                 }
 
                 this.dataForm.goodsWeight = element.target.value
+            }
+
+            if (element.target.id === 'overseasOriginalPrice') { // 원가
+                element.target.value = element.target.value.replace(/[^0-9.]/g, '')
+                if (element.target.value.indexOf('.') !== -1) {
+                    element.target.value = element.target.value.slice(0, element.target.value.indexOf('.') + 3)
+                }
+
+                this.dataForm.overseasOriginalPrice = element.target.value
+            }
+
+            if (element.target.id === 'overseasSalesPrice') { // 판매가
+                element.target.value = element.target.value.replace(/[^0-9.]/g, '')
+
+                if (element.target.value.indexOf('.') !== -1) {
+                    element.target.value = element.target.value.slice(0, element.target.value.indexOf('.') + 3)
+                }
+
+                this.dataForm.overseasSalesPrice = element.target.value
             }
 
             if (element.target.id === 'originalPrice') { // 원가
@@ -407,6 +461,24 @@ export default {
                 if (element.target.id === 'sizeName-' + idx) {
                     element.target.value = element.target.value.substr(0, 20)
                     this.dataOption[idx].sizeName = element.target.value
+                }
+
+                if (element.target.id === 'overseasOriginalPrice-' + idx) {
+                    element.target.value = element.target.value.replace(/[^0-9.]/g, '')
+                    if (element.target.value.indexOf('.') !== -1) {
+                        element.target.value = element.target.value.slice(0, element.target.value.indexOf('.') + 3)
+                    }
+
+                    this.dataOption[idx].overseasOriginalPrice = element.target.value
+                }
+
+                if (element.target.id === 'overseasSalesPrice-' + idx) {
+                    element.target.value = element.target.value.replace(/[^0-9.]/g, '')
+                    if (element.target.value.indexOf('.') !== -1) {
+                        element.target.value = element.target.value.slice(0, element.target.value.indexOf('.') + 3)
+                    }
+
+                    this.dataOption[idx].overseasSalesPrice = element.target.value
                 }
 
                 if (element.target.id === 'originalPrice-' + idx) {
@@ -677,6 +749,10 @@ export default {
             this.dataForm.typeId = this.tempTypeId
             this.dataForm.subTypeId = this.tempSubTypeId
         },
+        setCanceOverseasTypeDialog() { // 해외용상품분류추가다이얼로그 닫기
+            this.isShowOverseasTypeDialog = false
+            this.dataForm.overseasTypeId = this.tempOverseasTypeId
+        },
         setShowTagDialog() { // 키워드다이얼로그 로출
             this.isTagChecked = false
             this.isShowTagDialog = true
@@ -834,8 +910,10 @@ export default {
         },
         setShowTypeDialog() {
             this.isShowTypeDialog = true
-
             this.getCategoryData()
+        },
+        setShowOverseasTypeDialog() {
+            this.isShowOverseasTypeDialog = true
         },
         setAddType() {
             if (this.dataForm.typeId === undefined || this.dataForm.typeId === '') {
@@ -1337,6 +1415,8 @@ export default {
                         salesPrice: parseFloat(res.salesPrice),
                         costPrice: parseFloat(res.costPrice),
                         sizeWeight: parseFloat(res.sizeWeight),
+                        overseasSalesPrice: parseFloat(res.overseasSalesPrice),
+                        overseasOriginalPrice: parseFloat(res.overseasOriginalPrice),
                         imgId: undefined,
                         visualSalesNum: res.visualSalesNum === '' ? 0 : res.visualSalesNum,
                         packageInfo: {
@@ -1469,7 +1549,10 @@ export default {
                 goodsVideo: '',
                 deliveryId: parseInt(this.dataForm.deliveryId),
                 postageFreeStatus: this.dataForm.postageFreeStatus ? '1' : '0',
-                profitRateFreeStatus: this.dataForm.isProfitRateFreeStatus ? '1' : '0'
+                profitRateFreeStatus: this.dataForm.isProfitRateFreeStatus ? '1' : '0',
+                overseasStatus: this.dataForm.overseasStatus ? '1' : '0',
+                overseasSalesPrice: parseFloat(this.dataForm.overseasSalesPrice),
+                overseasOriginalPrice: parseFloat(this.dataForm.overseasOriginalPrice)
             }
 
             this.isClicked = true
